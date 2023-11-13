@@ -4,18 +4,17 @@ import { ChatService } from 'src/app/providers/chat.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: []
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
 
-  constructor( public _cs: ChatService ) {  }
+  constructor( public _cs: ChatService ) { }
 
-  ingresar( proveedor: string ){
+
+  ingresar ( proveedor: string ){
     console.log( proveedor );
 
     this._cs.login( proveedor );
-
-
   }
 
 }
