@@ -1,90 +1,22 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
-import { Mensaje } from '../interface/mensaje.interface';
-import { map } from 'rxjs/operators';
-
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import  firebase  from 'firebase/compat/app';
-
-
+import { AngularFirestore, AngularFirestoreCollection } from  '@angular/fire/compat/firestore';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
 
-  private itemsCollection: AngularFirestoreCollection<Mensaje> | any;
+  private itemsCollection: AngularFirestoreCollection<any>;
 
-  public chats: Mensaje[] = [];
-  public usuario: any = {};
+  public chats: any[] = [];
 
-  constructor( private afs: AngularFirestore,
-    public afAuth: AngularFireAuth) {
-    this.afAuth.authState.subscribe( user => {
-      console.log('Estado del usuario:', user);
+  constructor( private afs: AngularFirestore ) { }
 
-      if( !user ){
-        return;
-      }
+  cargarMensajes(){
 
-      this.usuario.nombre = user.displayName;
-      this.usuario.uid = user.uid;
+    this.itemsCollection = this.afs.collection<any>('chats');
 
-    })
-
-     }
-
-
-  login( proveedor:string) {
-       if(proveedor ==='google'){
-        this.afAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-       }else{
-        if(proveedor ==='twitter'){
-          this.afAuth.signInWithPopup(new firebase.auth.TwitterAuthProvider());
-         }
-
-       }
+    return this.itemsCollection.valueChanges();
 
   }
-  logout() {
-    this.usuario = {};
-    this.afAuth.signOut();
-  }
-
-
-
-  cargarMensajes() {
-    this.itemsCollection = this.afs.collection<Mensaje>('chats', ref => ref.orderBy('fecha', 'desc')
-                                  .limit(5));
-
-
-    return this.itemsCollection.valueChanges()
-                                .pipe(map( (mensajes: Mensaje[]) =>{
-                                  console.log( mensajes );
-                                  // this.chats = mensajes;
-
-                                  this.chats = [];
-
-                                  for ( let mensaje of mensajes ){
-                                    this.chats.unshift( mensaje )
-                                  }
-                                  return this.chats;
-
-                                }))
-  }
-
-  agregarMensaje( texto: string ){
-
-    let mensaje: Mensaje = {
-      nombre: this.usuario.nombre,
-      mensaje: texto,
-      fecha: new Date().getTime(),
-      uid: this.usuario.uid
-    }
-
-    return this.itemsCollection.add( mensaje );
-
-  }
-
-
 }
